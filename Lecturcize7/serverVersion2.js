@@ -35,7 +35,7 @@ server.listen(3000, process.env.IP, startHandler);
 
 function startHandler()
 {
-  var address = server.address();
+  let address = server.address();
   console.log("Server listening at", address.address + ":" + address.port);
 }
 
@@ -43,12 +43,12 @@ function requestHandler(req, res)
 {
   try
   {
-    var query = getQuery(req);
+    let query = getQuery(req);
     res.writeHead(200, {"Content-Type": "application/json"});
 
     if (query['cmd'] == undefined) { throw Error("A command must be specified."); }
 
-    var result = {};
+    let result = {};
 
     switch(query["cmd"])
     {
@@ -67,7 +67,7 @@ function requestHandler(req, res)
   }
   catch (e)
   {
-    var error = {"error" : e.message};
+    let error = {"error" : e.message};
 
     res.write(JSON.stringify(error));
     res.end("");
@@ -76,8 +76,8 @@ function requestHandler(req, res)
 
 function getQuery(req)
 {
-  var urlParts = url.parse(req.url, true);
-  var query = queryString.parse(urlParts.query);
+  let urlParts = url.parse(req.url, true);
+  let query = queryString.parse(urlParts.query);
 
   return query;
 }
@@ -86,10 +86,10 @@ function add(query)
 {
   if (query["num"] == undefined || query["num"].length < 2) { throw Error("Expecting at least two numbers"); }
 
-  var sum = 0;
-  for (var i in query["num"]) { sum += parseInt(query["num"][i]); }
+  let sum = 0;
+  for (let i in query["num"]) { sum += parseInt(query["num"][i]); }
 
-  var result = {"sum" : sum};
+  let result = {"sum" : sum};
   return result;
 }
 
@@ -97,13 +97,13 @@ function subtract(query)
 {
   if (query["num"] == undefined || query["num"].length < 2) { throw Error("Expecting at least two numbers"); }
 
-  var difference = query["num"][0];
-  for (var i = 1; i < query["num"].length; i++)
+  let difference = query["num"][0];
+  for (let i = 1; i < query["num"].length; i++)
   {
-    var num = query["num"][i];
+    let num = query["num"][i];
     difference -= parseInt(query["num"][i]);
   }
 
-  var result = {"difference" : difference};
+  let result = {"difference" : difference};
   return result;
 }
