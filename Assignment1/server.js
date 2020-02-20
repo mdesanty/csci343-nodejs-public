@@ -19,6 +19,7 @@
  * http://localhost:3000/?cmd=calculateRectangleProperties&length=5&width=10
  * http://localhost:3000/?cmd=calculateRectangleProperties&length=5&width=-10
  * http://localhost:3000/?cmd=calculateRectangleProperties&length=5
+ * http://localhost:3000/?cmd=calculateRectangleProperties&width=5
  * http://localhost:3000/?cmd=calculateRectangleProperties&length=5&width=ten
  *
  */
