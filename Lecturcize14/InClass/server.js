@@ -1,6 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const mysql = require("mysql");
+const bcrypt = require("bcryptjs");
 const app = express();
 
 const connectionInfo = {
@@ -57,7 +58,8 @@ function register(req, res) {
     if(err)
       writeResult(res, {error: "Error connecting to the database: " + err.message});
     else {
-      connection.query("INSERT INTO Users (Email, Password) VALUES (?, ?)", [req.query.email, req.query.password], function(err, dbResult) {
+      let hash = bcrypt.hashSync(req.query.password, 12);
+      connection.query("INSERT INTO Users (Email, Password) VALUES (?, ?)", [req.query.email, hash], function(err, dbResult) {
         if(err)
           writeResult(res, {error: "Error creating user: " + err.message});
         else {
@@ -91,7 +93,7 @@ function login(req, res) {
           writeResult(res, {error: err.message});
         else {
           let result = {};
-          if(dbResult.length == 1 && dbResult[0].Password == req.query.password) {
+          if(dbResult.length == 1 && bcrypt.compareSync(req.query.password, dbResult[0].Password)) {
             req.session.user = {id: dbResult[0].Id, email: dbResult[0].Email};
             result = {user: req.session.user};
           }
