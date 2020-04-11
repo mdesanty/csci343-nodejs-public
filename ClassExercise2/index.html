@@ -1,0 +1,171 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <style>
+      #login-btn, #logout-btn {display: none;}
+    </style>
+  </head>
+
+  <body>
+    <div class="container" style="padding-top: 10px;">
+      <button id="login-btn" class="btn btn-primary">Login</button>
+      <button id="logout-btn" class="btn btn-primary">Logout</button>
+
+      <h4 style="margin-top: 10px;">Simple Song App</h4>
+      <form class="border border-primary p-3">
+        <div class="form-group">
+          <label for="song">Song</label>
+          <input class="form-control" id="song" aria-describedby="emailHelp" placeholder="Enter a song">
+        </div>
+
+        <button id="add-song-btn" type="button" class="btn btn-primary float-right">Add</button>
+        <div class="clearfix"></div>
+      </form>
+
+      <p id="error-message" class="text-danger"></p>
+      <ul id="song-list" class="list-group"></ul>
+    </div>
+
+    <!--put your modal dialogs here...-->
+    <div id="login-modal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Login</h5>
+            <button type="button" class="close" data-dismiss="modal" area-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form class="border border-primary p-3">
+              <div class="form-group">
+                <input id="email" type="text" class="form-control" placeholder="Email">
+              </div>
+              <div class="form-group">
+                <input id="password" type="password" class="form-control" placeholder="Password">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button id="confirm-login-btn" type="button" class="btn btn-primary">Login</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(function() {
+        // Model
+        let model = {};
+
+        function initializeModel() {
+          model = {};
+        }
+
+        // View
+        function updateView() {
+          if(model.error) {
+            $("#error-message").text(model.error);
+          }
+
+          manageAuthenticationElements();
+          manageSongList();
+        }
+
+        function manageAuthenticationElements() {
+          // If we have a user or songs we know that someone is loged in.
+          if(model.user || model.songs) {
+            $("#login-btn").hide();
+            $("#logout-btn").show();
+          }
+          else {
+            $("#login-btn").show();
+            $("#logout-btn").hide();
+          }
+        }
+
+        function manageSongList() {
+          $("ul#song-list").empty();
+
+          if(model.songs) {
+            $("#error-message").text("");
+
+            $.each(model.songs, function(index, song) {
+              let item = $("<li class=\"list-group-item align-middle\">" + song.name + "<button type=\"button\" class=\"song-entry btn btn-danger float-right\" value=\"" + song.name + "\">Delete</button></li>");
+              $("ul#song-list").append(item);
+            });
+          }
+        }
+
+        // Controller
+        $("#add-song-btn").click(function() {
+          sendRequest("songs/add?song=" + $("#song").val());
+        });
+
+        $(document).on("click", ".song-entry", function() {
+          let songEntry = $(this);
+          let song = songEntry.attr("value");
+          let url = "songs/remove?song=" + song;
+
+          sendRequest(url);
+        });
+
+        $("#login-btn").click(function() {
+          $("#login-modal").modal("show");
+        });
+
+        $("#confirm-login-btn").click(function() {
+          let email = $("#email").val();
+          let password = $("#password").val();
+
+          let url = "login?email=" + email + "&password=" + password;
+
+          sendRequest(url, function() {
+            if(model.user.email) {
+              sendRequest("songs");
+            }
+          });
+
+          $("#login-modal").modal("hide");
+        });
+
+        $("#logout-btn").click(function() {
+          sendRequest("logout", function() {
+            $("#song-list").empty();
+          });
+        });
+
+        function sendRequest(url, callback) {
+          let request = $.get(url);
+
+          request.done(function(json) {
+            model = json;
+
+            updateView();
+            if (callback !== undefined) callback();
+          });
+
+          request.fail(function(json) {
+            let error = JSON.stringify(json);
+            model.error = error;
+
+            updateView();
+          });
+        }
+
+        initializeModel();
+        sendRequest("whoIsLoggedIn", function() {
+          if(model.user) {
+            sendRequest("songs");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
