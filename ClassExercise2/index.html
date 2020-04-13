@@ -60,6 +60,7 @@
     </div>
 
     <script>
+      // This will run when the page loads.
       $(document).ready(function() {
         // Model
         let model = {};
@@ -71,6 +72,8 @@
         // View
         function updateView() {
           if(model.error) {
+            // Here I am telling JQuery to grab the element whose id is "error-message" and to set the text of that
+            // element to the value in model.error.
             $("#error-message").text(model.error);
           }
 
@@ -81,7 +84,10 @@
         function manageAuthenticationElements() {
           // If we have a user or songs we know that someone is loged in.
           if(model.user || model.songs) {
+            // This is how you use JQuery to hide an element.
             $("#login-btn").hide();
+
+            // Here is how you use JQuery to show a hidden element.
             $("#logout-btn").show();
           }
           else {
@@ -91,25 +97,42 @@
         }
 
         function manageSongList() {
+          // Here I am using JQuery to grab the ul element with id "song-list" and calling empty on it, which will remove
+          // all of its child elements.
           $("ul#song-list").empty();
 
           if(model.songs) {
             $("#error-message").text("");
 
             $.each(model.songs, function(index, song) {
+
+              // Here I am using JQuery to build an element and add it inside of another element.
+              // I'm using the JQuery constructor to create an element by passing a string defining the element.
               let item = $("<li class=\"list-group-item align-middle\">" + song.name + "<button type=\"button\" class=\"song-entry btn btn-danger float-right\" value=\"" + song.name + "\">Delete</button></li>");
+
+              // Then I'm finding the ul element with the id "song-list" and adding my newly created element to it.
               $("ul#song-list").append(item);
             });
           }
         }
 
         // Controller
+
+        // Here I am telling the browser that anytime the user clicks the element with id "add-song-btn" to execute the
+        // code in my function.
         $("#add-song-btn").click(function() {
           sendRequest("songs/add?song=" + $("#song").val());
         });
 
+        // I need to use this special $(document).on function here because I want to add an event handler to my elements
+        // that have the class "song-entry". These elements weren't on the page when it loaded. I dynamically created and
+        // added them with JQuery. So a regular .click will not do anything for them.
         $(document).on("click", ".song-entry", function() {
+
+          // When an event happens. I can get the element that was clicked by calling $(this)
           let songEntry = $(this);
+
+          // Here I am using the attr method to get the value of the "value" attribute of the song entry element.
           let song = songEntry.attr("value");
           let url = "songs/remove?song=" + song;
 
@@ -117,10 +140,15 @@
         });
 
         $("#login-btn").click(function() {
+          // This is how you show a modal. Here I am showing the modal with id "login-modal"
           $("#login-modal").modal("show");
         });
 
+        // Here I am telling the browser that anytime the user clicks the element with id "confirm-login-btn" to
+        // do whatever I define in the function.
         $("#confirm-login-btn").click(function() {
+          // Here I am setting a variable named email to the value of the input element with id "email". The function
+          // val() gets the value of an input element.
           let email = $("#email").val();
           let password = $("#password").val();
 
@@ -132,6 +160,7 @@
             }
           });
 
+          // This is how you hide a modal. Here I am hiding the modal with id "login-modal"
           $("#login-modal").modal("hide");
         });
 
@@ -142,8 +171,11 @@
         });
 
         function sendRequest(url, callback) {
+
+          // Here I am creating a GET request to the provided URL. Keep in mind that this is asynchronous.
           let request = $.get(url);
 
+          // Here I am telling that request what to do when it finishes.
           request.done(function(json) {
             model = json;
 
@@ -151,6 +183,7 @@
             if (callback !== undefined) callback();
           });
 
+          // Here I am telling that request what to do when it fails.
           request.fail(function(json) {
             let error = JSON.stringify(json);
             model.error = error;
