@@ -23,7 +23,7 @@ const sessionOptions = {
   secret: "mike is awesome",
   resave: false,
   saveUninitialized: false,
-  cookie: {maxAge: 60000}
+  cookie: {maxAge: 600000}
 };
 app.use(session(sessionOptions));
 
@@ -206,7 +206,7 @@ function getAndListSongs(req, res) {
       writeResult(res, {error: err.message});
     else {
       let songs = dbResult.map(function(song) {return buildSong(song)});
-      writeResult(res, {songs: songs});
+      writeResult(res, {user: req.session.user, songs: songs});
     }
   });
 }

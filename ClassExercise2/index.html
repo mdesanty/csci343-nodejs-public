@@ -7,57 +7,102 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
     <style>
-      #login-btn, #logout-btn {display: none;}
+      #login-btn, #register-btn, #logout-btn, #add-song-btn, #clear-songs-btn, #confirm-login-btn, #confirm-register-btn {display: none;}
+      #controls {margin-bottom: 15px;}
+
+      a {color: white;}
+      a:hover {color: gray;}
     </style>
   </head>
 
   <body>
-    <div class="container" style="padding-top: 10px;">
-      <button id="login-btn" class="btn btn-primary">Login</button>
-      <button id="logout-btn" class="btn btn-primary">Logout</button>
-
-      <h4 style="margin-top: 10px;">Simple Song App</h4>
-      <form class="border border-primary p-3">
-        <div class="form-group">
-          <label for="song">Song</label>
-          <input class="form-control" id="song" aria-describedby="emailHelp" placeholder="Enter a song">
-        </div>
-
-        <button id="add-song-btn" type="button" class="btn btn-primary float-right">Add</button>
-        <div class="clearfix"></div>
-      </form>
-
-      <p id="error-message" class="text-danger"></p>
-      <ul id="song-list" class="list-group"></ul>
+    <div class="jumbotron jumbotron-fluid mb-0">
+      <div class="container">
+        <h1 class="display-4">Song Application</h1>
+        <p class="lead">Manage your favorite songs!!</p>
+      </div>
     </div>
+    <div>
+      <ul class="nav justify-content-start border p-2 bg-dark text-light">
+        <li class="nav-item">
+          <a href="#" id="add-song-btn" class="nav-link">Add Song</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="clear-songs-btn" class="nav-link">Clear Songs</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="login-btn" class="nav-link">Login</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="logout-btn" class="nav-link">Logout</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="register-btn" class="nav-link">Register</a>
+        </li>
+      </ul>
+      <div>
+        <ul id="song-list" class="list-group"></ul>
+      </div>
+    </div>
+  </div>
+  <!-- <div class="container" style="padding-top: 10px;">
+    <p id="error-message" class="text-danger"></p>
+    <ul id="song-list" class="list-group"></ul>
+  </div> -->
 
-    <!--put your modal dialogs here...-->
-    <div id="login-modal" class="modal" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Login</h5>
-            <button type="button" class="close" data-dismiss="modal" area-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form class="border border-primary p-3">
-              <div class="form-group">
-                <input id="email" type="text" class="form-control" placeholder="Email">
-              </div>
-              <div class="form-group">
-                <input id="password" type="password" class="form-control" placeholder="Password">
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button id="confirm-login-btn" type="button" class="btn btn-primary">Login</button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          </div>
+  <!--put your modal dialogs here...-->
+  <div id="add-song-modal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Song</h5>
+          <button type="button" class="close" data-dismiss="modal" area-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form class="border border-primary p-3">
+            <div class="form-group">
+              <label for="song">Song</label>
+              <input class="form-control" id="song" aria-describedby="emailHelp" placeholder="Enter a song">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button id="confirm-add-song-btn" type="button" class="btn btn-primary">Add</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
         </div>
       </div>
     </div>
+  </div>
+
+  <div id="login-modal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="login-modal-title" class="modal-title">Login</h5>
+          <button type="button" class="close" data-dismiss="modal" area-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form class="border border-primary p-3">
+            <div class="form-group">
+              <input id="email" type="text" class="form-control" placeholder="Email">
+            </div>
+            <div class="form-group">
+              <input id="password" type="password" class="form-control" placeholder="Password">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button id="confirm-login-btn" type="button" class="btn btn-primary">Login</button>
+          <button id="confirm-register-btn" type="button" class="btn btn-primary">Register</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
     <script>
       // This will run when the page loads.
@@ -71,28 +116,43 @@
 
         // View
         function updateView() {
-          if(model.error) {
-            // Here I am telling JQuery to grab the element whose id is "error-message" and to set the text of that
-            // element to the value in model.error.
-            $("#error-message").text(model.error);
-          }
-
+          manageErrorElements()
           manageAuthenticationElements();
           manageSongList();
         }
 
+        function manageErrorElements() {
+          if(model.error) {
+            // Here I am telling JQuery to grab the element whose id is "error-message" and to set the text of that
+            // element to the value in model.error.
+            $("#error-message").text(model.error);
+            $("#error-message").show();
+          }
+          else {
+            $("#error-message").hide();
+          }
+        }
+
         function manageAuthenticationElements() {
           // If we have a user or songs we know that someone is loged in.
-          if(model.user || model.songs) {
+          if(model.user) {
             // This is how you use JQuery to hide an element.
             $("#login-btn").hide();
+            $("#register-btn").hide();
 
             // Here is how you use JQuery to show a hidden element.
             $("#logout-btn").show();
+
+            $("#add-song-btn").show();
+            $("#clear-songs-btn").show();
           }
           else {
             $("#login-btn").show();
+            $("#register-btn").show();
+
             $("#logout-btn").hide();
+            $("#add-song-btn").hide();
+            $("#clear-songs-btn").hide();
           }
         }
 
@@ -102,8 +162,6 @@
           $("ul#song-list").empty();
 
           if(model.songs) {
-            $("#error-message").text("");
-
             $.each(model.songs, function(index, song) {
 
               // Here I am using JQuery to build an element and add it inside of another element.
@@ -118,10 +176,25 @@
 
         // Controller
 
+        $("#add-song-btn").click(function() {
+          $("#add-song-modal").modal("show");
+        });
+
         // Here I am telling the browser that anytime the user clicks the element with id "add-song-btn" to execute the
         // code in my function.
-        $("#add-song-btn").click(function() {
+        $("#confirm-add-song-btn").click(function() {
           sendRequest("songs/add?song=" + $("#song").val());
+
+          $("#song").val("");
+          $("#add-song-modal").modal("hide");
+        });
+
+        $("#clear-songs-btn").click(function() {
+          sendRequest("songs/clear", function() {
+            if(!model.error) {
+              sendRequest("songs");
+            }
+          });
         });
 
         // I need to use this special $(document).on function here because I want to add an event handler to my elements
@@ -140,19 +213,34 @@
         });
 
         $("#login-btn").click(function() {
+          $("#confirm-login-btn").show();
+          $("#confirm-register-btn").hide();
+
+          $("#login-modal-title").text("Login");
+
           // This is how you show a modal. Here I am showing the modal with id "login-modal"
           $("#login-modal").modal("show");
         });
 
-        // Here I am telling the browser that anytime the user clicks the element with id "confirm-login-btn" to
-        // do whatever I define in the function.
-        $("#confirm-login-btn").click(function() {
+        $("#register-btn").click(function() {
+          $("#email").val("");
+          $("#password").val("");
+
+          $("#confirm-login-btn").hide();
+          $("#confirm-register-btn").show();
+
+          $("#login-modal-title").text("Register");
+
+          $("#login-modal").modal("show");
+        });
+
+        function makeAuthenticationRequest(path) {
           // Here I am setting a variable named email to the value of the input element with id "email". The function
           // val() gets the value of an input element.
           let email = $("#email").val();
           let password = $("#password").val();
 
-          let url = "login?email=" + email + "&password=" + password;
+          let url = path + "?email=" + email + "&password=" + password;
 
           sendRequest(url, function() {
             if(model.user.email) {
@@ -160,8 +248,21 @@
             }
           });
 
+          $("#email").val("");
+          $("#password").val("");
+
           // This is how you hide a modal. Here I am hiding the modal with id "login-modal"
           $("#login-modal").modal("hide");
+        }
+
+        // Here I am telling the browser that anytime the user clicks the element with id "confirm-login-btn" to
+        // do whatever I define in the function.
+        $("#confirm-login-btn").click(function() {
+          makeAuthenticationRequest("login");
+        });
+
+        $("#confirm-register-btn").click(function() {
+          makeAuthenticationRequest("register");
         });
 
         $("#logout-btn").click(function() {
@@ -171,7 +272,6 @@
         });
 
         function sendRequest(url, callback) {
-
           // Here I am creating a GET request to the provided URL. Keep in mind that this is asynchronous.
           let request = $.get(url);
 
