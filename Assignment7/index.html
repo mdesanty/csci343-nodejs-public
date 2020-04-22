@@ -1,0 +1,155 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <style>
+      .box {
+        height: 200px;
+        background-color: black;
+        border: white 2px solid;
+      }
+
+      .prize {
+        background-color: green;
+      }
+
+      .flipped {
+        background-color: red;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container" style="padding-top:10px;">
+      <h4>Treasure Hunt</h4>
+      <div id="boxes" class="row"></div>
+      <p>Guesses: <span id="guesses">0</span></p>
+      <p id="error"></p>
+    </div>
+
+    <div id="confirm" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-light">
+            <h5 class="modal-title">Play Again?</h5>
+
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <p>Would you like to play again?</p>
+          </div>
+
+          <div class="modal-footer">
+            <button id="yes" type="button" class="btn btn-primary">Yes</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(function() {
+        let game = {};
+
+        function initializeModel() {
+          game = {};
+          game.boxCount = 8;
+          game.boxes = {};
+          game.error = undefined;
+          game.guesses = 0;
+          game.currentGuess = undefined;
+
+          for (var i = 1; i <= game.boxCount; i++) {
+            game.boxes[i] = {flipped: false};
+          }
+        }
+
+        function sendRequest(url) {
+          let jqxhr = $.get(url);
+
+          jqxhr.done(function(json) {
+            if(json.error !== undefined) {
+              game.error = json.error;
+            }
+            else {
+              game.guesses = json.guesses;
+              game.gameOver = json.gameOver;
+            }
+
+            updateView();
+          });
+          jqxhr.fail(function(json) {
+            game.error = json.error;
+            updateView();
+          });
+        }
+
+        function updateView() {
+          $("#error").hide();
+
+          if(game.error !== undefined) {
+            $("#error").text("Error: " + game.error);
+            $("#error").show();
+          }
+          else {
+            $("#boxes").empty();
+
+            if(game.gameOver == true && game.currentGuess) {
+              game.boxes[game.currentGuess].winner = true;
+              $("#confirm").modal("show");
+            }
+
+            for (var i = 1; i <= game.boxCount; i++) {
+              let item = $("<div class='col-6 box'></div>");
+
+              if(game.boxes[i].winner) {
+                item.addClass("prize");
+              }
+              else if(game.boxes[i].flipped) {
+                item.addClass("flipped");
+              }
+
+              item.attr("value", i);
+              $("#boxes").append(item);
+            }
+
+            $("#guesses").text(game.guesses);
+          }
+        }
+
+        $(document).on("click", ".box", function() {
+          if(game.gameOver == true) return;
+
+          let box = $(this);
+          if(box.hasClass("flipped")) return;
+
+          let boxValue = box.attr("value");
+          game.currentGuess = boxValue;
+          game.boxes[parseInt(boxValue)].flipped = true;
+
+          sendRequest("game?guess=" + boxValue);
+        });
+
+        function startGame() {
+          initializeModel();
+          sendRequest("game?max=" + game.boxCount);
+        }
+
+        $("#yes").click(function()
+        {
+          $("#confirm").modal("hide");
+          startGame();
+        });
+
+        startGame();
+      });
+    </script>
+  </body>
+</html>
